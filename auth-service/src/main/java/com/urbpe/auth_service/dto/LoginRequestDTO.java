@@ -1,4 +1,4 @@
-package com.urbpe.auth_service.dto.request;
+package com.urbpe.auth_service.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
