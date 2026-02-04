@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class JwtService {
@@ -24,10 +25,11 @@ public class JwtService {
     }
 
     public String generateToken(User user) {
+        List<String> roles = List.of(user.getRole().name());
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .claim("userId", user.getId())
-                .claim("role", user.getRole().name())
+                .claim("roles", user.getRole().name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key, SignatureAlgorithm.HS256)
