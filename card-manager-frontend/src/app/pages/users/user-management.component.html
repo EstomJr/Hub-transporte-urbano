@@ -1,0 +1,59 @@
+<section class="grid grid-2">
+  <div class="card">
+    <h1>Usuários</h1>
+    <p>Cadastre e gerencie os usuários vinculados ao serviço.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="grid">
+      <div class="form-group">
+        <label for="name">Nome</label>
+        <input id="name" type="text" formControlName="name" />
+      </div>
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input id="email" type="email" formControlName="email" />
+      </div>
+      <div class="form-group">
+        <label for="role">Perfil</label>
+        <select id="role" formControlName="role">
+          <option value="USER">Usuário</option>
+          <option value="ADMIN">Administrador</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <input id="password" type="password" formControlName="password" placeholder="Opcional para edição" />
+      </div>
+      <div class="form-actions">
+        <button class="button primary" type="submit">{{ editingUserId ? 'Atualizar' : 'Criar' }}</button>
+        <button class="button secondary" type="button" (click)="resetForm()">Limpar</button>
+      </div>
+    </form>
+
+    <p class="feedback" *ngIf="feedback">{{ feedback }}</p>
+  </div>
+
+  <div class="card">
+    <h2>Lista de usuários</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Perfil</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td><span class="badge">{{ user.role || 'USER' }}</span></td>
+          <td>
+            <button class="button secondary" type="button" (click)="edit(user)">Editar</button>
+            <button class="button danger" type="button" (click)="remove(user)">Excluir</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

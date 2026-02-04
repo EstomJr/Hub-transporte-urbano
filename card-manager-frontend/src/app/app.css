@@ -1,0 +1,157 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f5f7fb;
+  color: #1f2937;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 3rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.brand__subtitle {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.app-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.app-nav a {
+  text-decoration: none;
+  color: #374151;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  transition: all 0.2s ease;
+}
+
+.app-nav a.active,
+.app-nav a:hover {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+.app-main {
+  padding: 2rem 3rem 3rem;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+}
+
+.grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.button {
+  border: none;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button.primary {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+.button.secondary {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.button.danger {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.12);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table th {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}

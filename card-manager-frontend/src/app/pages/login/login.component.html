@@ -1,0 +1,18 @@
+<section class="card auth-card">
+  <h1>Login</h1>
+  <p>Entre com sua conta para acessar o gerenciamento de cartões.</p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="grid">
+    <div class="form-group">
+      <label for="email">E-mail</label>
+      <input id="email" type="email" formControlName="email" placeholder="nome@empresa.com" />
+    </div>
+    <div class="form-group">
+      <label for="password">Senha</label>
+      <input id="password" type="password" formControlName="password" placeholder="••••••" />
+    </div>
+    <button class="button primary" type="submit">Entrar</button>
+  </form>
+
+  <p class="feedback" *ngIf="feedback">{{ feedback }}</p>
+</section>

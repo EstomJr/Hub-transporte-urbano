@@ -1,0 +1,66 @@
+<section class="grid grid-2">
+  <div class="card">
+    <h1>Cartões</h1>
+    <p>Controle os cartões cadastrados e vinculados aos usuários.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="grid">
+      <div class="form-group">
+        <label for="cardNumber">Número do cartão</label>
+        <input id="cardNumber" type="text" formControlName="cardNumber" />
+      </div>
+      <div class="form-group">
+        <label for="holderName">Titular</label>
+        <input id="holderName" type="text" formControlName="holderName" />
+      </div>
+      <div class="form-group">
+        <label for="expirationMonth">Mês de expiração</label>
+        <input id="expirationMonth" type="text" formControlName="expirationMonth" placeholder="MM" />
+      </div>
+      <div class="form-group">
+        <label for="expirationYear">Ano de expiração</label>
+        <input id="expirationYear" type="text" formControlName="expirationYear" placeholder="YYYY" />
+      </div>
+      <div class="form-group">
+        <label for="brand">Bandeira</label>
+        <input id="brand" type="text" formControlName="brand" placeholder="Visa, Master..." />
+      </div>
+      <div class="form-group">
+        <label for="userId">ID do usuário</label>
+        <input id="userId" type="number" formControlName="userId" placeholder="Opcional" />
+      </div>
+      <div class="form-actions">
+        <button class="button primary" type="submit">{{ editingCardId ? 'Atualizar' : 'Criar' }}</button>
+        <button class="button secondary" type="button" (click)="resetForm()">Limpar</button>
+      </div>
+    </form>
+
+    <p class="feedback" *ngIf="feedback">{{ feedback }}</p>
+  </div>
+
+  <div class="card">
+    <h2>Lista de cartões</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Cartão</th>
+          <th>Titular</th>
+          <th>Validade</th>
+          <th>Usuário</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let card of cards">
+          <td>{{ card.brand }} • {{ card.cardNumber }}</td>
+          <td>{{ card.holderName }}</td>
+          <td>{{ card.expirationMonth }}/{{ card.expirationYear }}</td>
+          <td>{{ card.userId || '-' }}</td>
+          <td>
+            <button class="button secondary" type="button" (click)="edit(card)">Editar</button>
+            <button class="button danger" type="button" (click)="remove(card)">Excluir</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
