@@ -18,3 +18,11 @@
         </form>
     </div>
 </div>
+
+<div class="modal-backdrop" *ngIf="showErrorModal" (click)="closeErrorModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Falha no login</h3>
+    <p>{{ errorMsg }}</p>
+    <button type="button" (click)="closeErrorModal()">Entendi</button>
+  </div>
+</div>

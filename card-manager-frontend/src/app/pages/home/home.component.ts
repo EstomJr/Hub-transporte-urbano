@@ -1,7 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 import { CardService } from '../../services/card.service';
+import { UserApiService } from '../../services/user-api.service';
+import { AdminService } from '../../services/admin.service';
 import { Card, CardType } from '../../models/card.model';
+import { User } from '../../models/user.model';
+import { AdminDashboard } from '../../models/admin-dashboard.model';
 
 @Component({
   selector: 'app-home',
@@ -10,18 +16,99 @@ import { Card, CardType } from '../../models/card.model';
   standalone: false
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  role: string | null = null;
+  userId: number | null = null;
   cartoes$: Observable<Card[]>;
   cartoes: Card[] = [];
   cartaoSelecionado: Card | null = null;
-  isModalOpen = false;
   private cardsSubscription?: Subscription;
 
-  constructor(private cardService: CardService) {
+  adminDashboard?: AdminDashboard;
+  users: User[] = [];
+  allCards: Card[] = [];
+
+  adminSection = 'dashboard';
+  userSection = 'dashboard';
+
+  addUserForm: FormGroup;
+  updateUserForm: FormGroup;
+  deleteUserForm: FormGroup;
+  addAdminCardForm: FormGroup;
+  deleteAdminCardForm: FormGroup;
+  toggleAdminCardForm: FormGroup;
+
+  updateProfileForm: FormGroup;
+  addUserCardForm: FormGroup;
+
+  userProfile?: User;
+  actionMessage = '';
+
+  cardTypes = Object.values(CardType);
+
+  constructor(
+    private authService: AuthService,
+    private cardService: CardService,
+    private userApiService: UserApiService,
+    private adminService: AdminService,
+    private fb: FormBuilder
+  ) {
     this.cartoes$ = this.cardService.cards$;
+    this.addUserForm = this.fb.group({
+      name: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      role: ['USER', [Validators.required]]
+    });
+
+    this.updateUserForm = this.fb.group({
+      id: ['', [Validators.required]],
+      name: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      role: ['USER']
+    });
+
+    this.deleteUserForm = this.fb.group({
+      id: ['', [Validators.required]]
+    });
+
+    this.addAdminCardForm = this.fb.group({
+      userId: ['', [Validators.required]],
+      numeroCartao: ['', [Validators.required]],
+      nome: ['', [Validators.required]],
+      tipoCartao: [CardType.COMUM, [Validators.required]],
+      status: [true, [Validators.required]]
+    });
+
+    this.deleteAdminCardForm = this.fb.group({
+      userId: ['', [Validators.required]],
+      cardId: ['', [Validators.required]]
+    });
+
+    this.toggleAdminCardForm = this.fb.group({
+      userId: ['', [Validators.required]],
+      cardId: ['', [Validators.required]],
+      status: [true, [Validators.required]]
+    });
+
+    this.updateProfileForm = this.fb.group({
+      name: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+
+    this.addUserCardForm = this.fb.group({
+      numeroCartao: ['', [Validators.required]],
+      nome: ['', [Validators.required]],
+      tipoCartao: [CardType.COMUM, [Validators.required]],
+      status: [true, [Validators.required]]
+    });
   }
+  
 
   ngOnInit(): void {
-    this.cardService.listarCartoes();
+    this.role = this.authService.getUserRole();
+    this.userId = this.authService.getUserId();
     this.cardsSubscription = this.cartoes$.subscribe(cards => {
       this.cartoes = cards;
       if (this.cartoes.length > 0) {
@@ -30,11 +117,74 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.cartaoSelecionado = null;
       }
     });
+    if (this.role === 'ADMIN') {
+      this.loadAdminDashboard();
+      this.loadUsers();
+      this.loadAllCards();
+    } else {
+      this.loadUserProfile();
+      this.cardService.listarCartoes();
+    }
   }
 
   ngOnDestroy(): void {
     this.cardsSubscription?.unsubscribe();
   }
+
+  setAdminSection(section: string) {
+    this.adminSection = section;
+    if (section === 'dashboard') {
+      this.loadAdminDashboard();
+    }
+    if (section === 'users-list') {
+      this.loadUsers();
+    }
+    if (section === 'cards-list') {
+      this.loadAllCards();
+    }
+  }
+
+  setUserSection(section: string) {
+    this.userSection = section;
+    if (section === 'cards') {
+      this.cardService.listarCartoes();
+    }
+  }
+
+  loadAdminDashboard() {
+    this.adminService.getDashboard().subscribe({
+      next: (data) => (this.adminDashboard = data),
+      error: () => (this.adminDashboard = undefined)
+    });
+  }
+
+  loadUsers() {
+    this.adminService.listUsers().subscribe({
+      next: (data) => (this.users = data),
+      error: () => (this.users = [])
+    });
+  }
+
+  loadAllCards() {
+    this.adminService.listCards().subscribe({
+      next: (data) => (this.allCards = data),
+      error: () => (this.allCards = [])
+    });
+  }
+
+  loadUserProfile() {
+    if (!this.userId) return;
+    this.userApiService.getProfile(this.userId).subscribe({
+      next: (user) => {
+        this.userProfile = user;
+        this.updateProfileForm.patchValue({
+          name: user.name,
+          email: user.email
+        });
+      }
+    });
+  }
+
 
   getImagem(tipo: CardType): string {
     const map = {
@@ -50,7 +200,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   bloquearOuDesbloquearCartao() {
-    if (this.cartaoSelecionado && this.cartaoSelecionado.id) {
+     if (this.cartaoSelecionado?.id) {
       const novoStatus = !this.cartaoSelecionado.status;
       this.cardService.atualizarStatus(this.cartaoSelecionado.id, novoStatus).subscribe(() => {
         this.cardService.listarCartoes();
@@ -64,5 +214,102 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.cardService.listarCartoes();
       });
     }
+  }
+submitAddUser() {
+    if (this.addUserForm.invalid) return;
+    this.adminService.createUser(this.addUserForm.value).subscribe({
+      next: () => {
+        this.actionMessage = 'Usuário cadastrado com sucesso.';
+        this.addUserForm.reset({ role: 'USER' });
+        this.loadUsers();
+        this.loadAdminDashboard();
+      }
+    });
+  }
+
+  submitUpdateUser() {
+    if (this.updateUserForm.invalid) return;
+    const { id, ...payload } = this.updateUserForm.value;
+    this.adminService.updateUser(Number(id), payload).subscribe({
+      next: () => {
+        this.actionMessage = 'Usuário atualizado com sucesso.';
+        this.updateUserForm.reset({ role: 'USER' });
+        this.loadUsers();
+      }
+    });
+  }
+
+  submitDeleteUser() {
+    if (this.deleteUserForm.invalid) return;
+    const { id } = this.deleteUserForm.value;
+    this.adminService.deleteUser(Number(id)).subscribe({
+      next: () => {
+        this.actionMessage = 'Usuário removido com sucesso.';
+        this.deleteUserForm.reset();
+        this.loadUsers();
+        this.loadAdminDashboard();
+      }
+    });
+  }
+
+  submitAddAdminCard() {
+    if (this.addAdminCardForm.invalid) return;
+    const { userId, ...payload } = this.addAdminCardForm.value;
+    this.adminService.addCardToUser(Number(userId), payload).subscribe({
+      next: () => {
+        this.actionMessage = 'Cartão adicionado ao usuário.';
+        this.addAdminCardForm.reset({ status: true, tipoCartao: CardType.COMUM });
+        this.loadAllCards();
+        this.loadAdminDashboard();
+      }
+    });
+  }
+
+  submitDeleteAdminCard() {
+    if (this.deleteAdminCardForm.invalid) return;
+    const { userId, cardId } = this.deleteAdminCardForm.value;
+    this.adminService.removeCard(Number(userId), Number(cardId)).subscribe({
+      next: () => {
+        this.actionMessage = 'Cartão removido com sucesso.';
+        this.deleteAdminCardForm.reset();
+        this.loadAllCards();
+        this.loadAdminDashboard();
+      }
+    });
+  }
+
+  submitToggleAdminCard() {
+    if (this.toggleAdminCardForm.invalid) return;
+    const { userId, cardId, status } = this.toggleAdminCardForm.value;
+    this.adminService.updateCardStatus(Number(userId), Number(cardId), status).subscribe({
+      next: () => {
+        this.actionMessage = 'Status do cartão atualizado.';
+        this.toggleAdminCardForm.reset({ status: true });
+        this.loadAllCards();
+        this.loadAdminDashboard();
+      }
+    });
+  }
+
+  submitUpdateProfile() {
+    if (this.updateProfileForm.invalid || !this.userId) return;
+    this.userApiService.updateProfile(this.userId, this.updateProfileForm.value).subscribe({
+      next: (user) => {
+        this.actionMessage = 'Perfil atualizado com sucesso.';
+        this.userProfile = user;
+        this.loadUserProfile();
+      }
+    });
+  }
+
+  submitAddUserCard() {
+    if (this.addUserCardForm.invalid) return;
+    this.cardService.adicionarCartao(this.addUserCardForm.value).subscribe({
+      next: () => {
+        this.actionMessage = 'Cartão cadastrado no seu perfil.';
+        this.addUserCardForm.reset({ status: true, tipoCartao: CardType.COMUM });
+        this.cardService.listarCartoes();
+      }
+    });
   }
 }

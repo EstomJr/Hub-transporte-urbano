@@ -47,6 +47,18 @@ export class AuthService {
     return Number.isFinite(parsedId) ? parsedId : null;
   }
 
+   getUserRole(): string | null {
+    const user = this.currentUserSubject.value as Record<string, unknown> | null;
+    const rawRoles = user?.['roles'] ?? user?.['role'];
+    if (Array.isArray(rawRoles) && rawRoles.length > 0) {
+      return String(rawRoles[0]).toUpperCase();
+    }
+    if (typeof rawRoles === 'string') {
+      return rawRoles.toUpperCase();
+    }
+    return null;
+  }
+
   isLoggedIn(): boolean {
     return !!this.getToken();
   }

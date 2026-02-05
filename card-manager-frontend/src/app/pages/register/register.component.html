@@ -13,6 +13,13 @@
       <label for="password">Senha</label>
       <input id="password" type="password" formControlName="password" required>
     </div>
+    <div class="form-group">
+      <label for="role">Perfil</label>
+      <select id="role" formControlName="role" required>
+        <option value="USER">Usuário</option>
+        <option value="ADMIN">Administrador</option>
+      </select>
+    </div>
     <div *ngIf="errorMsg" class="error-message">
       {{ errorMsg }}
     </div>
