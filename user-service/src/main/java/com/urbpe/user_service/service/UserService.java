@@ -92,10 +92,11 @@ public class UserService {
 
     @Transactional
     public void removeCard(Long userId, Long cardId, String actor) {
-        User user = findUser(userId);
-        Card card = findCardForUser(user, cardId);
-        user.removeCard(card);
-        userRepository.save(user);
+        findUser(userId);
+        Card card = cardRepository.findByIdAndUserId(cardId, userId)
+                .orElseGet(() -> cardRepository.findByIdAndUserId(userId, cardId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Card not found for user: " + cardId)));
+        cardRepository.delete(card);
     }
 
     @Transactional
