@@ -1,6 +1,7 @@
 package com.urbpe.user_service.controller;
 
 import com.urbpe.user_service.dto.request.CardRequestDTO;
+import com.urbpe.user_service.dto.response.AdminDashboardResponseDTO;
 import com.urbpe.user_service.dto.response.CardResponseDTO;
 import com.urbpe.user_service.dto.request.UserRequestDTO;
 import com.urbpe.user_service.dto.response.UserResponseDTO;
@@ -30,6 +31,12 @@ public class AdminController {
     @Operation(summary = "Listar todos os utilizadores", description = "Retorna a lista completa de perfis sincronizados")
     public ResponseEntity<List<UserResponseDTO>> listUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @GetMapping("/dashboard")
+    @Operation(summary = "Resumo do dashboard", description = "Retorna contadores globais de utilizadores e cartões")
+    public ResponseEntity<AdminDashboardResponseDTO> getDashboard() {
+        return ResponseEntity.ok(userService.getAdminDashboard());
     }
 
     @PostMapping("/users")

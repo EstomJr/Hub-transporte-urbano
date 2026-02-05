@@ -1,6 +1,7 @@
 package com.urbpe.user_service.service;
 
 import com.urbpe.user_service.dto.request.CardRequestDTO;
+import com.urbpe.user_service.dto.response.AdminDashboardResponseDTO;
 import com.urbpe.user_service.dto.response.CardResponseDTO;
 import com.urbpe.user_service.dto.request.UserRequestDTO;
 import com.urbpe.user_service.dto.response.UserResponseDTO;
@@ -110,6 +111,14 @@ public class UserService {
         return cardRepository.findAll().stream()
                 .map(cardMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    public AdminDashboardResponseDTO getAdminDashboard() {
+        long totalUsers = userRepository.count();
+        long totalCards = cardRepository.count();
+        long activeCards = cardRepository.countByStatus(true);
+        long inactiveCards = cardRepository.countByStatus(false);
+        return new AdminDashboardResponseDTO(totalUsers, totalCards, activeCards, inactiveCards);
     }
 
     public List<CardResponseDTO> getUserCards(Long userId) {
