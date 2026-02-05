@@ -104,36 +104,66 @@
 
     <section *ngIf="adminSection === 'cards-list'" class="panel">
       <h3>Cartões cadastrados</h3>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Número</th>
-              <th>Nome</th>
-              <th>Status</th>
-              <th>Tipo</th>
-              <th>Usuário</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let card of allCards">
-              <td>{{ card.id }}</td>
-              <td>{{ card.numeroCartao }}</td>
-              <td>{{ card.nome }}</td>
-              <td>{{ card.status ? 'Ativo' : 'Inativo' }}</td>
-              <td>{{ card.tipoCartao }}</td>
-              <td>{{ card.userId ?? '-' }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div *ngIf="allCards.length > 0; else emptyState" class="cards-grid">
+        <button
+          type="button"
+          class="card-item"
+          *ngFor="let card of allCards"
+          (click)="selecionarCartaoAdmin(card)"
+          [class.selected]="adminSelectedCard?.id === card.id"
+        >
+          <div class="card-preview" [style.backgroundImage]="getImagem(card.tipoCartao)">
+            <div class="card-number">{{ card.numeroCartao }}</div>
+            <div class="card-name">{{ card.nome }}</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="card-details" *ngIf="adminSelectedCard">
+        <h4>Detalhes</h4>
+        <div class="detail-row">
+          <span>ID:</span>
+          <strong>{{ adminSelectedCard.id }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Número:</span>
+          <strong>{{ adminSelectedCard.numeroCartao }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Nome:</span>
+          <strong>{{ adminSelectedCard.nome }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Status:</span>
+          <strong>{{ adminSelectedCard.status ? 'Ativo' : 'Inativo' }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Tipo:</span>
+          <strong>{{ adminSelectedCard.tipoCartao }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Usuário:</span>
+          <strong>{{ adminSelectedCard.userId ?? '-' }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Email associado:</span>
+          <strong>{{ getUsuarioDoCartao(adminSelectedCard)?.email || 'email não encontrado' }}</strong>
+        </div>
+        <div class="actions">
+          <button type="button" (click)="atualizarStatusCartaoAdmin(adminSelectedCard)">
+            {{ adminSelectedCard.status ? 'Inativar' : 'Ativar' }}
+          </button>
+          <button type="button" class="danger" (click)="removerCartaoAdmin(adminSelectedCard)">
+            Remover cartão do usuário
+          </button>
+        </div>
       </div>
     </section>
     <section *ngIf="adminSection === 'cards-add'" class="panel">
       <h3>Adicionar cartão para usuário</h3>
       <form [formGroup]="addAdminCardForm" (ngSubmit)="submitAddAdminCard()" class="form-grid">
         <input type="number" placeholder="ID do usuário" formControlName="userId" />
-        <input type="text" placeholder="Número do cartão" formControlName="numeroCartao" />
+        <input type="number" placeholder="Número do cartão" formControlName="numeroCartao" />
         <input type="text" placeholder="Nome no cartão" formControlName="nome" />
         <select formControlName="tipoCartao">
           <option *ngFor="let tipo of cardTypes" [value]="tipo">{{ tipo }}</option>
@@ -256,7 +286,7 @@
       <section *ngIf="userSection === 'add-card'" class="panel">
         <h3>Adicionar cartão</h3>
         <form [formGroup]="addUserCardForm" (ngSubmit)="submitAddUserCard()" class="form-grid">
-          <input type="text" placeholder="Número do cartão" formControlName="numeroCartao" />
+          <input type="number" placeholder="Número do cartão" formControlName="numeroCartao" />
           <input type="text" placeholder="Nome no cartão" formControlName="nome" />
           <select formControlName="tipoCartao">
             <option *ngFor="let tipo of cardTypes" [value]="tipo">{{ tipo }}</option>

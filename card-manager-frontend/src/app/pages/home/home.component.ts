@@ -26,6 +26,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   adminDashboard?: AdminDashboard;
   users: User[] = [];
   allCards: Card[] = [];
+  adminSelectedCard: Card | null = null;
 
   adminSection = 'dashboard';
   userSection = 'dashboard';
@@ -144,6 +145,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.loadUsers();
     }
     if (section === 'cards-list') {
+      this.loadUsers();
       this.loadAllCards();
     }
   }
@@ -180,8 +182,70 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   loadAllCards() {
     this.adminService.listCards().subscribe({
-      next: (data) => (this.allCards = data),
-      error: () => (this.allCards = [])
+      next: (data) => {
+        this.allCards = data;
+        this.syncAdminSelectedCard();
+      },
+      error: () => {
+        this.allCards = [];
+        this.adminSelectedCard = null;
+      }
+    });
+  }
+
+  private syncAdminSelectedCard(): void {
+    if (!this.allCards.length) {
+      this.adminSelectedCard = null;
+      return;
+    }
+
+    if (!this.adminSelectedCard?.id) {
+      this.adminSelectedCard = this.allCards[0];
+      return;
+    }
+
+    this.adminSelectedCard = this.allCards.find((card) => card.id === this.adminSelectedCard?.id) ?? this.allCards[0];
+  }
+
+  selecionarCartaoAdmin(card: Card): void {
+    this.adminSelectedCard = card;
+  }
+
+  getUsuarioDoCartao(card: Card): User | undefined {
+    if (!card.userId) return undefined;
+    return this.users.find((user) => user.id === card.userId);
+  }
+
+  atualizarStatusCartaoAdmin(card: Card): void {
+    if (!card.id || !card.userId) {
+      this.showActionMessage('Não foi possível atualizar o status deste cartão.', 'error');
+      return;
+    }
+
+    const novoStatus = !card.status;
+    this.adminService.updateCardStatus(card.userId, card.id, novoStatus).subscribe({
+      next: () => {
+        this.showActionMessage(`Cartão ${novoStatus ? 'ativado' : 'inativado'} com sucesso.`);
+        this.loadAllCards();
+        this.loadAdminDashboard();
+      }
+    });
+  }
+
+  removerCartaoAdmin(card: Card): void {
+    if (!card.id || !card.userId) {
+      this.showActionMessage('Não foi possível remover este cartão.', 'error');
+      return;
+    }
+
+    const usuario = this.getUsuarioDoCartao(card);
+    this.adminService.removeCard(card.userId, card.id).subscribe({
+      next: () => {
+        const email = usuario?.email || 'email não encontrado';
+        this.showActionMessage(`Cartão removido do usuário ${email}.`, 'error');
+        this.loadAllCards();
+        this.loadAdminDashboard();
+      }
     });
   }
 
