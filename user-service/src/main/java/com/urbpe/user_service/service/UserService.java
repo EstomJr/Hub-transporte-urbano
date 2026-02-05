@@ -18,6 +18,8 @@ import com.urbpe.user_service.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,15 +29,17 @@ public class UserService {
     private final CardRepository cardRepository;
     private final UserMapper userMapper;
     private final CardMapper cardMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository,
                        CardRepository cardRepository,
                        UserMapper userMapper,
-                       CardMapper cardMapper) {
+                       CardMapper cardMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.cardRepository = cardRepository;
         this.userMapper = userMapper;
         this.cardMapper = cardMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<UserResponseDTO> getAllUsers() {
@@ -57,6 +61,7 @@ public class UserService {
         } else if (user.getRole() == null) {
             user.setRole(UserRole.USER);
         }
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         User saved = userRepository.save(user);
         return userMapper.toResponse(saved);
     }
@@ -67,7 +72,7 @@ public class UserService {
         validateEmailAvailability(request.getEmail(), userId);
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         if (!"USER".equals(actor) && request.getRole() != null) {
             user.setRole(request.getRole());
         }
