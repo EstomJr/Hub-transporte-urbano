@@ -1,0 +1,42 @@
+<div class="home-container">
+  <h2>Meus Cartoes</h2>
+
+  <div *ngIf="cartoes.length > 0; else emptyState">
+    <div class="cards-list">
+      <button
+        type="button"
+        class="card-item"
+        *ngFor="let cartao of cartoes"
+        (click)="selecionarCartao(cartao)"
+        [class.selected]="cartaoSelecionado?.id === cartao.id"
+      >
+        <div class="card-preview" [style.backgroundImage]="getImagem(cartao.tipoCartao)">
+          <div class="card-number">{{ cartao.numeroCartao }}</div>
+          <div class="card-name">{{ cartao.nome }}</div>
+        </div>
+      </button>
+    </div>
+
+    <div class="card-details" *ngIf="cartaoSelecionado">
+      <h3>Detalhes</h3>
+      <div class="detail-row">
+        <span>Tipo:</span>
+        <strong>{{ cartaoSelecionado.tipoCartao }}</strong>
+      </div>
+      <div class="detail-row">
+        <span>Status:</span>
+        <strong>{{ cartaoSelecionado.status ? 'Ativo' : 'Bloqueado' }}</strong>
+      </div>
+      <div class="actions">
+        <button type="button" (click)="bloquearOuDesbloquearCartao()">
+          {{ cartaoSelecionado.status ? 'Bloquear' : 'Desbloquear' }}
+        </button>
+        <button type="button" class="danger" (click)="excluirCartao()">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #emptyState>
+    <p>Nenhum cartao encontrado.</p>
+  </ng-template>
+</div>
