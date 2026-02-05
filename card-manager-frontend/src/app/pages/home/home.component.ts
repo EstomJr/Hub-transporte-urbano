@@ -117,13 +117,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.cartaoSelecionado = null;
       }
     });
+
     if (this.role === 'ADMIN') {
-      this.loadAdminDashboard();
-      this.loadUsers();
-      this.loadAllCards();
+      this.setAdminSection('dashboard');
     } else {
-      this.loadUserProfile();
-      this.cardService.listarCartoes();
+      this.setUserSection('dashboard');
     }
   }
 
@@ -135,6 +133,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.adminSection = section;
     if (section === 'dashboard') {
       this.loadAdminDashboard();
+      this.loadUsers();
+      this.loadAllCards();
     }
     if (section === 'users-list') {
       this.loadUsers();
@@ -144,8 +144,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
+   logout() {
+    this.authService.logout();
+  }
+
   setUserSection(section: string) {
     this.userSection = section;
+    if (section === 'dashboard') {
+      this.loadUserProfile();
+      this.cardService.listarCartoes();
+    }
     if (section === 'cards') {
       this.cardService.listarCartoes();
     }
@@ -188,9 +196,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   getImagem(tipo: CardType): string {
     const map = {
-      [CardType.COMUM]: 'url(assets/images/cartoes/vem_comum_frente.jpg)',
-      [CardType.ESTUDANTE]: 'url(assets/images/cartoes/vem_estudante_frente.jpg)',
-      [CardType.TRABALHADOR]: 'url(assets/images/cartoes/vem_trabalhador_frente.jpg)'
+      [CardType.COMUM]: 'url(images/cartoes/vem_comum_frente.jpg)',
+      [CardType.ESTUDANTE]: 'url(images/cartoes/vem_estudante_frente.jpg)',
+      [CardType.TRABALHADOR]: 'url(images/cartoes/vem_trabalhador_frente.jpg)'
     };
     return map[tipo] || map[CardType.COMUM];
   }
