@@ -234,4 +234,18 @@ border: none;
   .form-grid {
     grid-template-columns: 1fr;
   }
+  
+
+.menu-button.logout-button {
+  margin-top: auto;
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
+}
+
+.menu-button.logout-button:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
 }

@@ -19,6 +19,7 @@
       <button class="menu-button" (click)="setAdminSection('cards-toggle')">Ativar/Inativar cartão</button>
 </div>
   <button class="menu-button primary" (click)="setAdminSection('users-add')">Cadastrar novo usuário</button>
+  <button class="menu-button logout-button" (click)="logout()">Sair</button>
   </aside>
 
   <main class="content">
@@ -179,6 +180,7 @@
       <button class="menu-button" (click)="setUserSection('profile-update')">Atualizar perfil</button>
       <button class="menu-button" (click)="setUserSection('cards')">Listar cartões</button>
       <button class="menu-button" (click)="setUserSection('add-card')">Adicionar cartão</button>
+      <button class="menu-button logout-button" (click)="logout()">Sair</button>
     </aside>
 
     <main class="content">
