@@ -42,6 +42,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   userProfile?: User;
   actionMessage = '';
+  actionMessageType: 'success' | 'error' = 'success';
 
   cardTypes = Object.values(CardType);
 

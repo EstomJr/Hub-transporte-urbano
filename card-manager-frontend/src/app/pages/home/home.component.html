@@ -23,8 +23,7 @@
   </aside>
 
   <main class="content">
-    <div *ngIf="actionMessage" class="toast">{{ actionMessage }}</div>
-
+    <div *ngIf="actionMessage" class="toast" [ngClass]="{'toast-error': actionMessageType === 'error', 'toast-success': actionMessageType === 'success'}">{{ actionMessage }}</div>
     <section *ngIf="adminSection === 'dashboard'" class="dashboard-grid">
       <div class="stat-card">
         <h3>Total de usuários</h3>
@@ -184,8 +183,7 @@
     </aside>
 
     <main class="content">
-      <div *ngIf="actionMessage" class="toast">{{ actionMessage }}</div>
-
+      <div *ngIf="actionMessage" class="toast" [ngClass]="{'toast-error': actionMessageType === 'error', 'toast-success': actionMessageType === 'success'}">{{ actionMessage }}</div>
       <section *ngIf="userSection === 'dashboard'" class="panel">
         <h3>Bem-vindo, {{ userProfile?.name || 'usuário' }}!</h3>
         <p>Confira o cartão cadastrado no seu perfil:</p>
