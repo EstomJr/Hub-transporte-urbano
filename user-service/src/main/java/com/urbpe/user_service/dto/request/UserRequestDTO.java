@@ -2,6 +2,7 @@ package com.urbpe.user_service.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import com.urbpe.user_service.entity.UserRole;
 
 public class UserRequestDTO {
     @NotBlank
@@ -14,13 +15,16 @@ public class UserRequestDTO {
     @NotBlank
     private String password;
 
+    private UserRole role;
+
     public UserRequestDTO() {
     }
 
-    public UserRequestDTO(String name, String email, String password) {
+    public UserRequestDTO(String name, String email, String password, UserRole role) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.role = role;
     }
 
     public String getName() {
@@ -45,5 +49,13 @@ public class UserRequestDTO {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 }
