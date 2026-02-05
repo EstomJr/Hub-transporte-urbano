@@ -13,5 +13,6 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     @Query(value = "SELECT * FROM cards WHERE id = :cardId AND user_id = :userId", nativeQuery = true)
     java.util.Optional<Card> findByIdAndUserId(@Param("cardId") Long cardId, @Param("userId") Long userId);
 
-    long countByStatus(boolean status);
+    @Query(value = "SELECT COUNT(*) FROM cards WHERE status = :status", nativeQuery = true)
+    long countByStatus(@Param("status") boolean status);
 }

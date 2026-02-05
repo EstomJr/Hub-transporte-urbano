@@ -6,9 +6,9 @@ export enum CardType {
 
 export interface Card {
     id?: number;
-    numeroCartao: string; // Java: numeroCartao
+    numeroCartao: number;
     nome: string;
     status: boolean;
-    tipoCartao: CardType; // Java: Enum
+    tipoCartao: CardType;
     userId?: number;
 }

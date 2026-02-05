@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class CardRequestDTO {
-    @NotBlank
-    private String numeroCartao;
+    @NotNull
+    private Integer numeroCartao;
 
     @NotBlank
     private String nome;
@@ -20,18 +20,18 @@ public class CardRequestDTO {
     public CardRequestDTO() {
     }
 
-    public CardRequestDTO(String numeroCartao, String nome, Boolean status, CardType tipoCartao) {
+    public CardRequestDTO(Integer numeroCartao, String nome, Boolean status, CardType tipoCartao) {
         this.numeroCartao = numeroCartao;
         this.nome = nome;
         this.status = status;
         this.tipoCartao = tipoCartao;
     }
 
-    public String getNumeroCartao() {
+    public Integer getNumeroCartao() {
         return numeroCartao;
     }
 
-    public void setNumeroCartao(String numeroCartao) {
+    public void setNumeroCartao(Integer numeroCartao) {
         this.numeroCartao = numeroCartao;
     }
 

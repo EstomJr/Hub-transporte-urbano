@@ -19,7 +19,7 @@ public class Card {
     private Long id;
 
     @Column(name = "numero_cartao", nullable = false)
-    private String numeroCartao;
+    private Integer numeroCartao;
 
     @Column(nullable = false)
     private String nome;
@@ -38,7 +38,7 @@ public class Card {
     public Card() {
     }
 
-    public Card(Long id, String numeroCartao, String nome, boolean status, CardType tipoCartao) {
+    public Card(Long id, Integer numeroCartao, String nome, boolean status, CardType tipoCartao) {
         this.id = id;
         this.numeroCartao = numeroCartao;
         this.nome = nome;
@@ -54,11 +54,11 @@ public class Card {
         this.id = id;
     }
 
-    public String getNumeroCartao() {
+    public Integer getNumeroCartao() {
         return numeroCartao;
     }
 
-    public void setNumeroCartao(String numeroCartao) {
+    public void setNumeroCartao(Integer numeroCartao) {
         this.numeroCartao = numeroCartao;
     }
 

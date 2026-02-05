@@ -4,7 +4,7 @@ import com.urbpe.user_service.entity.CardType;
 
 public class CardResponseDTO {
     private Long id;
-    private String numeroCartao;
+    private Integer numeroCartao;
     private String nome;
     private boolean status;
     private CardType tipoCartao;
@@ -13,7 +13,7 @@ public class CardResponseDTO {
     public CardResponseDTO() {
     }
 
-    public CardResponseDTO(Long id, String numeroCartao, String nome, boolean status, CardType tipoCartao, Long userId) {
+    public CardResponseDTO(Long id, Integer numeroCartao, String nome, boolean status, CardType tipoCartao, Long userId) {
         this.id = id;
         this.numeroCartao = numeroCartao;
         this.nome = nome;
@@ -30,11 +30,11 @@ public class CardResponseDTO {
         this.id = id;
     }
 
-    public String getNumeroCartao() {
+    public Integer getNumeroCartao() {
         return numeroCartao;
     }
 
-    public void setNumeroCartao(String numeroCartao) {
+    public void setNumeroCartao(Integer numeroCartao) {
         this.numeroCartao = numeroCartao;
     }
 
