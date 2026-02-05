@@ -75,7 +75,7 @@
           <option value="USER">Usuário</option>
           <option value="ADMIN">Administrador</option>
         </select>
-        <button type="submit" [disabled]="addUserForm.invalid">Cadastrar</button>
+        <button type="submit" [disabled]="!isAddUserFormReady()">Cadastrar</button>
       </form>
     </section>
 

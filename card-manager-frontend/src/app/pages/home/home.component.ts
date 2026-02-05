@@ -43,6 +43,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   userProfile?: User;
   actionMessage = '';
   actionMessageType: 'success' | 'error' = 'success';
+  private actionMessageTimeout?: ReturnType<typeof setTimeout>;
 
   cardTypes = Object.values(CardType);
 
@@ -128,9 +129,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.cardsSubscription?.unsubscribe();
+    this.clearActionMessageTimeout();
   }
 
   setAdminSection(section: string) {
+    this.clearActionMessage();
     this.adminSection = section;
     if (section === 'dashboard') {
       this.loadAdminDashboard();
@@ -150,6 +153,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   setUserSection(section: string) {
+    this.clearActionMessage();
     this.userSection = section;
     if (section === 'dashboard') {
       this.loadUserProfile();
@@ -194,6 +198,26 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+   private showActionMessage(message: string, type: 'success' | 'error' = 'success', timeoutMs = 5000): void {
+    this.actionMessage = message;
+    this.actionMessageType = type;
+    this.clearActionMessageTimeout();
+    this.actionMessageTimeout = setTimeout(() => {
+      this.actionMessage = '';
+    }, timeoutMs);
+  }
+
+  private clearActionMessageTimeout(): void {
+    if (this.actionMessageTimeout) {
+      clearTimeout(this.actionMessageTimeout);
+      this.actionMessageTimeout = undefined;
+    }
+  }
+
+  private clearActionMessage(): void {
+    this.clearActionMessageTimeout();
+    this.actionMessage = '';
+  }
 
   getImagem(tipo: CardType): string {
     const map = {
@@ -212,6 +236,7 @@ export class HomeComponent implements OnInit, OnDestroy {
      if (this.cartaoSelecionado?.id) {
       const novoStatus = !this.cartaoSelecionado.status;
       this.cardService.atualizarStatus(this.cartaoSelecionado.id, novoStatus).subscribe(() => {
+        this.showActionMessage(`Cartão ${novoStatus ? 'ativado' : 'inativado'} com sucesso.`);
         this.cardService.listarCartoes();
       });
     }
@@ -220,15 +245,32 @@ export class HomeComponent implements OnInit, OnDestroy {
   excluirCartao() {
     if (this.cartaoSelecionado?.id) {
       this.cardService.removerCartao(this.cartaoSelecionado.id).subscribe(() => {
+        const email = this.userProfile?.email || 'seu usuário';
+        this.showActionMessage(`Cartão removido do usuário ${email}.`, 'error');
         this.cardService.listarCartoes();
       });
     }
   }
-submitAddUser() {
-    if (this.addUserForm.invalid) return;
+  
+  isAddUserFormReady(): boolean {
+    const name = String(this.addUserForm.get('name')?.value ?? '').trim();
+    const email = String(this.addUserForm.get('email')?.value ?? '').trim();
+    const password = String(this.addUserForm.get('password')?.value ?? '');
+    const role = String(this.addUserForm.get('role')?.value ?? '').trim();
+
+    const hasValidName = name.length > 0;
+    const hasValidEmail = this.addUserForm.get('email')?.valid === true;
+    const hasValidPassword = password.trim().length >= 6;
+    const hasValidRole = role.length > 0;
+
+    return hasValidName && hasValidEmail && hasValidPassword && hasValidRole;
+  }
+
+  submitAddUser() {
+    if (!this.isAddUserFormReady()) return;
     this.adminService.createUser(this.addUserForm.value).subscribe({
       next: () => {
-        this.actionMessage = 'Usuário cadastrado com sucesso.';
+        this.showActionMessage('Usuário cadastrado com sucesso.');
         this.addUserForm.reset({ role: 'USER' });
         this.loadUsers();
         this.loadAdminDashboard();
@@ -241,7 +283,7 @@ submitAddUser() {
     const { id, ...payload } = this.updateUserForm.value;
     this.adminService.updateUser(Number(id), payload).subscribe({
       next: () => {
-        this.actionMessage = 'Usuário atualizado com sucesso.';
+        this.showActionMessage('Usuário atualizado com sucesso.');
         this.updateUserForm.reset({ role: 'USER' });
         this.loadUsers();
       }
@@ -253,7 +295,7 @@ submitAddUser() {
     const { id } = this.deleteUserForm.value;
     this.adminService.deleteUser(Number(id)).subscribe({
       next: () => {
-        this.actionMessage = 'Usuário removido com sucesso.';
+        this.showActionMessage('Usuário removido com sucesso.', 'error');
         this.deleteUserForm.reset();
         this.loadUsers();
         this.loadAdminDashboard();
@@ -266,7 +308,7 @@ submitAddUser() {
     const { userId, ...payload } = this.addAdminCardForm.value;
     this.adminService.addCardToUser(Number(userId), payload).subscribe({
       next: () => {
-        this.actionMessage = 'Cartão adicionado ao usuário.';
+        this.showActionMessage('Cartão adicionado ao usuário.');
         this.addAdminCardForm.reset({ status: true, tipoCartao: CardType.COMUM });
         this.loadAllCards();
         this.loadAdminDashboard();
@@ -277,9 +319,13 @@ submitAddUser() {
   submitDeleteAdminCard() {
     if (this.deleteAdminCardForm.invalid) return;
     const { userId, cardId } = this.deleteAdminCardForm.value;
-    this.adminService.removeCard(Number(userId), Number(cardId)).subscribe({
+    const parsedUserId = Number(userId);
+    const parsedCardId = Number(cardId);
+    const user = this.users.find((item) => item.id === parsedUserId);
+    this.adminService.removeCard(parsedUserId, parsedCardId).subscribe({
       next: () => {
-        this.actionMessage = 'Cartão removido com sucesso.';
+        const email = user?.email || 'email não encontrado';
+        this.showActionMessage(`Cartão removido do usuário ${email}.`, 'error');
         this.deleteAdminCardForm.reset();
         this.loadAllCards();
         this.loadAdminDashboard();
@@ -292,7 +338,7 @@ submitAddUser() {
     const { userId, cardId, status } = this.toggleAdminCardForm.value;
     this.adminService.updateCardStatus(Number(userId), Number(cardId), status).subscribe({
       next: () => {
-        this.actionMessage = 'Status do cartão atualizado.';
+        this.showActionMessage('Status do cartão atualizado.');
         this.toggleAdminCardForm.reset({ status: true });
         this.loadAllCards();
         this.loadAdminDashboard();
@@ -304,7 +350,7 @@ submitAddUser() {
     if (this.updateProfileForm.invalid || !this.userId) return;
     this.userApiService.updateProfile(this.userId, this.updateProfileForm.value).subscribe({
       next: (user) => {
-        this.actionMessage = 'Perfil atualizado com sucesso.';
+        this.showActionMessage('Perfil atualizado com sucesso.');
         this.userProfile = user;
         this.loadUserProfile();
       }
@@ -315,7 +361,7 @@ submitAddUser() {
     if (this.addUserCardForm.invalid) return;
     this.cardService.adicionarCartao(this.addUserCardForm.value).subscribe({
       next: () => {
-        this.actionMessage = 'Cartão cadastrado no seu perfil.';
+        this.showActionMessage('Cartão cadastrado no seu perfil.');
         this.addUserCardForm.reset({ status: true, tipoCartao: CardType.COMUM });
         this.cardService.listarCartoes();
       }
